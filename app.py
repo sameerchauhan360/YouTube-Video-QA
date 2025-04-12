@@ -6,8 +6,10 @@ from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser  # To get string output
 from dotenv import load_dotenv
 import logging  # For better logging
-import time
-import sys
+import os
+
+
+os.environ["OPENAI_API_KEY"] = "your-api-key"
 
 # --- Basic Logging Setup ---
 logging.basicConfig(
