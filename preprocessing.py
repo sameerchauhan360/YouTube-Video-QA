@@ -47,9 +47,9 @@ def download_audio(url, id):
     import os
     import yt_dlp
 
-    print("Downloading audio from:", url)
-    output_path = os.path.join(os.getcwd(), f"{id}.webm")
-    
+    print("Downloading and converting audio from:", url)
+    output_path = os.path.join(os.getcwd(), f"{id}.%(ext)s")  # leave extension dynamic
+
     options = {
         "format": "bestaudio/best",
         "outtmpl": output_path,
@@ -57,12 +57,17 @@ def download_audio(url, id):
         "nocheckcertificate": True,
         "quiet": True,
         "no_warnings": True,
+        "postprocessors": [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'wav',
+            'preferredquality': '192',
+        }],
     }
 
     try:
         with yt_dlp.YoutubeDL(options) as ydl:
             ydl.download([url])
-        print("Download complete.")
+        print("✅ Download and conversion complete.")
     except Exception as e:
         print("❌ Download failed:", str(e))
 
@@ -134,7 +139,7 @@ def get_documents(url):
     metadata = get_video_metadata(url)  # Get video metadata
 
     download_audio(url, metadata['id'])
-    audio_path = os.path.join(os.getcwd(), f"{metadata['id']}.webm")
+    audio_path = os.path.join(os.getcwd(), f"{metadata['id']}.wav")
     print(f"Looking for audio at: {audio_path}")
 
     model = whisper.load_model("tiny")
