@@ -294,7 +294,7 @@ else:
                     formatted_history = format_history(st.session_state.history[:-1])
 
                     # Invoke the LLM chain with the correct input variable names
-                    print(context)
+                    # print(context)
                     response = llm_chain.invoke(
                         {
                             "context": context,
