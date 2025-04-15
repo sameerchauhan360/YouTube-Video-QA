@@ -137,7 +137,7 @@ def get_documents(url):
     audio_path = os.path.join(os.getcwd(), f"{metadata['id']}.webm")
     print(f"Looking for audio at: {audio_path}")
 
-    model = whisper.load_model("base")
+    model = whisper.load_model("tiny")
 
     result = model.transcribe(audio_path)
     print(result)
