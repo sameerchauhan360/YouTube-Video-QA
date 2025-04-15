@@ -116,7 +116,7 @@ def get_documents(url):
     model = whisper.load_model("base")
 
     result = model.transcribe(audio_path)
-
+    print(result)
     document = merge_segments(result["segments"])
 
     chunks = create_chunks(document, video_metadata=metadata)
