@@ -47,8 +47,10 @@ The system uses a hybrid search approach (combining semantic search with FAISS a
 3.  **Create a Virtual Environment (Recommended):**
     ```bash
     python -m venv venv
+    
     # On Windows
     .\venv\Scripts\activate
+    
     # On macOS/Linux
     source venv/bin/activate
     ```
