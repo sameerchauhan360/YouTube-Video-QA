@@ -9,13 +9,13 @@ import logging  # For better logging
 import os
 import time
 
-def get_api_key_from_env():
-    with open(".env", "r") as file:
-        for line in file:
-            if line.startswith("OPENAI_API_KEY"):
-                # Remove any leading/trailing spaces and get the value after the equal sign
-                return line.split("=")[1].strip()
-    return None
+#def get_api_key_from_env():
+#    with open(".env", "r") as file:
+#        for line in file:
+#            if line.startswith("OPENAI_API_KEY"):
+#                # Remove any leading/trailing spaces and get the value after the equal sign
+#                return line.split("=")[1].strip()
+#    return None
 
 #api_key = get_api_key_from_env()
 api_key = st.secrets["api_keys"]["openai"]
