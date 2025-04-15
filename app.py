@@ -17,8 +17,8 @@ def get_api_key_from_env():
                 return line.split("=")[1].strip()
     return None
 
-api_key = get_api_key_from_env()
-
+#api_key = get_api_key_from_env()
+api_key = st.secrets["api_keys"]["openai"]
 os.environ["OPENAI_API_KEY"] = api_key
 
 # --- Basic Logging Setup ---
