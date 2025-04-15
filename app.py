@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 import logging  # For better logging
 import os
 import time
+os.environ["STREAMLIT_WATCHER_EXCLUDE_GLOBS"] = "**/torch/**,**/site-packages/**"
+
 
 #def get_api_key_from_env():
 #    with open(".env", "r") as file:
