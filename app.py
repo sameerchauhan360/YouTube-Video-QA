@@ -9,8 +9,17 @@ import logging  # For better logging
 import os
 import time
 
+def get_api_key_from_env():
+    with open(".env", "r") as file:
+        for line in file:
+            if line.startswith("OPENAI_API_KEY"):
+                # Remove any leading/trailing spaces and get the value after the equal sign
+                return line.split("=")[1].strip()
+    return None
 
-os.environ["OPENAI_API_KEY"] = "your-api-key"
+api_key = get_api_key_from_env()
+
+os.environ["OPENAI_API_KEY"] = api_key
 
 # --- Basic Logging Setup ---
 logging.basicConfig(
@@ -101,6 +110,30 @@ def format_history(history: list[dict]) -> str:
     return "\n".join(buffer)
 
 
+def get_summary(text, metadata):
+    summary_prompt = """
+    You are given a transcript and metadata of a YouTube video. Summarize the overall content of the video in a short, engaging paragraph that can be used as an introduction. 
+
+    Focus on the main topics, purpose, and what the viewer can expect to learn or experience. Avoid overly technical language unless necessary, and keep the tone concise and informative.
+    After the summary ends, formate this line by passing the thumbnail and webpage url which will be shown as the end of the summary.
+    [![Video Thumbnail]({{thumbnail_url}})]({{webpage_url_url}})"
+    
+    Transcript:
+    {text}
+    
+    Metadata:
+    {metadata}
+    
+    """
+
+    summary_prompt_template = PromptTemplate(
+        template=summary_prompt, input_variables=["text", "metadata"]
+    )
+
+    summary = llm.invoke(summary_prompt_template.format(text=text, metadata=metadata))
+    return summary.content
+
+
 # --- Streamlit App ---
 
 # Set page configuration (do this only once at the top)
@@ -149,10 +182,10 @@ with st.sidebar:
                 ):
                     try:
                         # Call the preprocessing function (ensure it handles its own errors and returns None on failure)
-                        faiss_db, bm25_db, chunks_texts, chunks = get_documents(
-                            yt_url
+                        faiss_db, bm25_db, chunks_texts, chunks, text, metadata = (
+                            get_documents(yt_url)
                         )  # Assuming 3rd return is redundant chunk_texts
-
+                        summary = get_summary(text, metadata)
                         # Check if processing was successful
                         if faiss_db and bm25_db and chunks:
                             st.session_state.faiss_db = faiss_db
@@ -165,6 +198,7 @@ with st.sidebar:
                             st.session_state.processed_url = (
                                 yt_url  # Store the successfully processed URL
                             )
+                            st.session_state.summary = summary
                             st.success("✅ Video processed successfully!")
                             logger.info(
                                 f"Successfully processed and indexed URL: {yt_url}"
@@ -202,6 +236,9 @@ with st.sidebar:
 
 # --- Main Chat Area ---
 st.header("💬 Chat with the Video")
+if "summary" in st.session_state:
+    with st.expander("📌 Video Summary", expanded=True):
+        st.markdown(st.session_state.summary)
 
 # Only show chat interface if a video has been processed
 if not st.session_state.faiss_db or not st.session_state.chunks:
@@ -257,7 +294,7 @@ else:
                     formatted_history = format_history(st.session_state.history[:-1])
 
                     # Invoke the LLM chain with the correct input variable names
-                    # print(context)
+                    print(context)
                     response = llm_chain.invoke(
                         {
                             "context": context,

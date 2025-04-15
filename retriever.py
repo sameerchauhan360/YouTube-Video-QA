@@ -2,7 +2,17 @@ from collections import defaultdict
 from typing import List
 from sklearn.preprocessing import MinMaxScaler
 
-def hybrid_ranked_chunks(query: str, faiss_db, bm25_db, chunk_texts: List, chunks: List, top_k: int = 5, w1=0.7, w2=0.3):
+
+def hybrid_ranked_chunks(
+    query: str,
+    faiss_db,
+    bm25_db,
+    chunk_texts: List,
+    chunks: List,
+    top_k: int = 5,
+    w1=0.7,
+    w2=0.3,
+):
     tokenized_query = query.lower().split()
 
     # 1. FAISS retrieval with scores
@@ -16,7 +26,9 @@ def hybrid_ranked_chunks(query: str, faiss_db, bm25_db, chunk_texts: List, chunk
 
     # 2. BM25 scores
     bm25_raw_scores = bm25_db.get_scores(tokenized_query)
-    bm25_top_indices = sorted(range(len(bm25_raw_scores)), key=lambda i: bm25_raw_scores[i], reverse=True)[:top_k]
+    bm25_top_indices = sorted(
+        range(len(bm25_raw_scores)), key=lambda i: bm25_raw_scores[i], reverse=True
+    )[:top_k]
     bm25_scores = [bm25_raw_scores[i] for i in bm25_top_indices]
 
     # Normalize BM25 scores
@@ -45,26 +57,47 @@ def hybrid_ranked_chunks(query: str, faiss_db, bm25_db, chunk_texts: List, chunk
 
     results = []
     for rank, (content, score) in enumerate(ranked, 1):
-        results.append({
-            "rank": rank,
-            "score": round(score, 4),
-            "timestamp": meta_map[content].get("timestamp", "N/A"),
-            "text": content
-        })
+        results.append(
+            {
+                "rank": rank,
+                "score": round(score, 4),
+                "timestamp": meta_map[content].get("timestamp", "N/A"),
+                "title": meta_map[content].get("title", "N/A"),
+                "uploader": meta_map[content].get("uploader", "N/A"),
+                "upload_date": meta_map[content].get("upload_date", "N/A"),
+                "description": meta_map[content].get("description", ""),
+                "text": content,
+            }
+        )
 
     return results
 
+
 def prepare_context(retreived_chunks):
-  context_parts = []
+    if not retreived_chunks:
+        return ""
 
-  for chunk in retreived_chunks:
-    content = chunk['text']
-    timestamp = chunk['timestamp']
+    # Extract metadata from the first chunk (all chunks share the same video metadata)
+    meta = retreived_chunks[0]
+    title = meta.get("title", "Unknown Title")
+    uploader = meta.get("uploader", "Unknown Uploader")
+    upload_date = meta.get("upload_date", "Unknown Date")
+    description = meta.get("description", "")
 
-    context_parts.append(f"Content: {content}\nTimestamp: {timestamp}\n")
+    context_parts = [
+        f"Video Title: {title}",
+        f"Uploader: {uploader}",
+        f"Upload Date: {upload_date}",
+        f"Description: {description}",
+        "\n---\n",
+    ]
 
-  context = "\n\n".join(context_parts)
-  return context
+    for chunk in retreived_chunks:
+        content = chunk["text"]
+        timestamp = chunk["timestamp"]
+        context_parts.append(f"Content: {content}\nTimestamp: {timestamp}\n")
+
+    return "\n\n".join(context_parts)
 
 
 # query = "What is this section about?"

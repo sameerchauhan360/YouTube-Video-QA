@@ -5,7 +5,6 @@ rank_bm25
 faiss-cpu
 langchain_huggingface
 langchain_openai
-langgraph
 streamlit
 git+https://github.com/openai/whisper.git
 python-dotenv
