@@ -12,16 +12,16 @@ import time
 os.environ["STREAMLIT_WATCHER_TYPE"] = "none"
 
 
-#def get_api_key_from_env():
-#    with open(".env", "r") as file:
-#        for line in file:
-#            if line.startswith("OPENAI_API_KEY"):
-#                # Remove any leading/trailing spaces and get the value after the equal sign
-#                return line.split("=")[1].strip()
-#    return None
+def get_api_key_from_env():
+   with open(".env", "r") as file:
+       for line in file:
+           if line.startswith("OPENAI_API_KEY"):
+               # Remove any leading/trailing spaces and get the value after the equal sign
+               return line.split("=")[1].strip()
+   return None
 
-#api_key = get_api_key_from_env()
-api_key = st.secrets["api_keys"]["openai"]
+api_key = get_api_key_from_env()
+# api_key = st.secrets["api_keys"]["openai"]
 os.environ["OPENAI_API_KEY"] = api_key
 
 # --- Basic Logging Setup ---
