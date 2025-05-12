@@ -118,7 +118,3 @@ The system uses a hybrid search approach (combining semantic search with FAISS a
 *   Optimize the hybrid search weighting or allow user adjustment.
 *   Support for video formats other than YouTube (e.g., local files).
 *   Deploy as a persistent web service.
-
----
-
-*Feel free to add a License section if applicable.*
